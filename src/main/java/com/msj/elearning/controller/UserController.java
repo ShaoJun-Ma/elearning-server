@@ -33,4 +33,13 @@ public class UserController {
         }
         return new ApiResponse(0,result.getMessage());
     }
+
+    @RequestMapping("/logout")
+    public ApiResponse login(Integer uId, HttpSession session){
+        ServiceResult result = userService.logout(uId,session);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
 }

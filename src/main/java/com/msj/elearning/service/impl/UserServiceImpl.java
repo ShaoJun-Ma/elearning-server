@@ -52,4 +52,22 @@ public class UserServiceImpl implements UserService {
             return new ServiceResult(true,"注册成功,请进行登录!");
         }
     }
+
+    @Override
+    public ServiceResult logout(Integer uId, HttpSession session) {
+        //1、判断是否该用户发来的请求
+        User user = (User) session.getAttribute("currentUser");
+        if(user == null){
+            return new ServiceResult(false,"用户未登录");
+        }
+        if(!uId.equals(user.getId())){
+            return new ServiceResult(false,"非法操作");
+        }
+        //2、清除缓存
+        session.removeAttribute("currentUser");
+        if(session.getAttribute("currentUser") == null){
+            return new ServiceResult(true,"退出成功");
+        }
+        return new ServiceResult(false,"退出失败");
+    }
 }
