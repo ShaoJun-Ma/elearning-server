@@ -24,4 +24,13 @@ public class UserController {
         }
         return new ApiResponse(0,result.getMessage());
     }
+
+    @RequestMapping("/register")
+    public ApiResponse register(String username, String password){
+        ServiceResult result = userService.register(username, password);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
 }

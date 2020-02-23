@@ -6,4 +6,5 @@ import javax.servlet.http.HttpSession;
 
 public interface UserService {
     ServiceResult login(String username, String password, HttpSession session);
+    ServiceResult register(String username,String password);
 }

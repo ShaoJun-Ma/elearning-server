@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 @Service("user")
 public class UserServiceImpl implements UserService {
@@ -32,5 +33,23 @@ public class UserServiceImpl implements UserService {
         user.setPassword(null);
         session.setAttribute("currentUser",user);
         return new ServiceResult(true,"登录成功",user);
+    }
+
+    @Override
+    public ServiceResult register(String username, String password) {
+        //1、判断该用户是否注册
+        User user = userMapper.findUserByUsername(username);
+        if(user != null){
+            return new ServiceResult(false,"该用户已存在!");
+        }
+        //2、未注册过，才可以进行注册
+        password = MD5Util.getMD5(password);
+        user = new User(username,password,username,new Date(),new Date());
+        int result = userMapper.insertSelective(user);
+        if(result <= 0){
+            return new ServiceResult(false,"注册失败!");
+        }else{
+            return new ServiceResult(true,"注册成功,请进行登录!");
+        }
     }
 }
