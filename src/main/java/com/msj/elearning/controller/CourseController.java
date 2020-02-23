@@ -21,4 +21,13 @@ public class CourseController {
         }
         return new ApiResponse(0,result.getMessage());
     }
+
+    @RequestMapping("/getListInfo")
+    public ApiResponse getListInfo(Integer isFree){
+        ServiceResult result = courseService.getListInfo(isFree);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
 }

@@ -4,6 +4,7 @@ import com.msj.elearning.common.ServiceResult;
 import com.msj.elearning.dto.CourseDTO;
 import com.msj.elearning.dto.CourseTypeDTO;
 import com.msj.elearning.dto.HomeInfoDTO;
+import com.msj.elearning.dto.ListInfoDTO;
 import com.msj.elearning.mapper.CourseMapper;
 import com.msj.elearning.mapper.CourseTypeMapper;
 import com.msj.elearning.pojo.Course;
@@ -42,6 +43,32 @@ public class CourseServiceImpl implements CourseService {
             return new ServiceResult(false, "获取首页数据失败");
         }
         return new ServiceResult(true, "获取首页数据成功", homeInfoDTO);
+    }
+
+    /**
+     * 获取列表的数据
+     *
+     * @param isFree
+     * @return
+     */
+    @Override
+    public ServiceResult getListInfo(Integer isFree) {
+        //1、获取父类型
+        List<CourseType> parentCourseTypeList = courseTypeMapper.findCourseTypeByParentId(0);
+        //2、获取子类型
+        List<CourseType> childCourseTypeList = courseTypeMapper.findCourseTypeByParentIdNot(0);
+        //3、获取课程
+        List<CourseDTO> courseDTOList = null;
+        List<Course> courseList = courseMapper.findCourseByIsFree(isFree);
+        if(courseList != null){
+            courseDTOList = mergeCourseDTOList(courseList);
+        }
+
+        ListInfoDTO listInfoDTO = new ListInfoDTO(parentCourseTypeList,childCourseTypeList,courseDTOList);
+        if(listInfoDTO == null){
+            return new ServiceResult(false,"获取列表页数据失败");
+        }
+        return new ServiceResult(true,"获取列表页数据成功",listInfoDTO);
     }
 
     /**

@@ -10,4 +10,8 @@
     <select id="findCourseTypeById" resultType="com.msj.elearning.pojo.CourseType">
         SELECT * FROM course_type WHERE id = #{id}
     </select>
+
+    <select id="findCourseTypeByParentIdNot" resultType="com.msj.elearning.pojo.CourseType">
+       SELECT * FROM course_type WHERE parent_id != #{parentId}
+    </select>
 </mapper>

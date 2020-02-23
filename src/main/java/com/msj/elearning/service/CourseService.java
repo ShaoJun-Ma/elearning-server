@@ -8,4 +8,11 @@ public interface CourseService {
      * @return
      */
     ServiceResult getHomeInfo();
+
+    /**
+     * 获取列表的数据
+     * @param isFree
+     * @return
+     */
+    ServiceResult getListInfo(Integer isFree);
 }
