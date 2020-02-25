@@ -10,4 +10,35 @@
     <select id="findCourseByIsFree" resultType="com.msj.elearning.pojo.Course">
         SELECT c.* FROM course c WHERE c.is_free = #{isFree}
     </select>
+
+    <select id="findCourseByRankAndIsFree" resultType="com.msj.elearning.pojo.Course">
+         SELECT c.* FROM course c
+         <where>
+             <if test="rank != '全部'">
+                 c.rank = #{rank} and
+             </if>
+             c.is_free = #{isFree}
+         </where>
+    </select>
+
+    <select id="findCourseByCidAndRankAndIsFree"  resultType="com.msj.elearning.pojo.Course">
+        SELECT c.* FROM course c
+        <where>
+            <if test="rank != '全部'">
+                c.rank = #{rank} and
+            </if>
+            c.ct_id = #{cid} and c.is_free = #{isFree}
+        </where>
+    </select>
+
+    <select id="findCourseByPidAndRankAndIsFree" resultType="com.msj.elearning.pojo.Course">
+        SELECT c.* FROM course c LEFT JOIN course_type ct
+        on c.ct_id = ct.id
+        <where>
+            <if test="rank != '全部'">
+                c.rank = #{rank} and
+            </if>
+            ct.parent_id = #{pid} and c.is_free = #{isFree}
+        </where>
+    </select>
 </mapper>

@@ -15,4 +15,28 @@ public interface CourseService {
      * @return
      */
     ServiceResult getListInfo(Integer isFree);
+
+    /**
+     * 获取课程
+     * @param pid 课程父类型
+     * @param cid 课程子类型
+     * @param rank 课程难度
+     * @param isFree 是否免费
+     */
+    ServiceResult getCourseByPidAndCidAndRank(Integer pid,Integer cid,String rank,Integer isFree);
+
+
+    /**
+     * 获取子类型
+     * @param pid 课程父类型id
+     * @return
+     */
+    ServiceResult getChildType(Integer pid);
+
+    /**
+     * 获取父类型和子类型
+     * @param cid 课程子类型id
+     * @return
+     */
+    ServiceResult getParentAndChildType(Integer cid);
 }

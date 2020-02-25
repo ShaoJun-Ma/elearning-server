@@ -53,22 +53,118 @@ public class CourseServiceImpl implements CourseService {
      */
     @Override
     public ServiceResult getListInfo(Integer isFree) {
-        //1、获取父类型
+
+        //1、获取课程类型
+        ArrayList<CourseTypeDTO> courseTypeDTOList = new ArrayList<>();
         List<CourseType> parentCourseTypeList = courseTypeMapper.findCourseTypeByParentId(0);
-        //2、获取子类型
-        List<CourseType> childCourseTypeList = courseTypeMapper.findCourseTypeByParentIdNot(0);
-        //3、获取课程
+        for (CourseType p : parentCourseTypeList) {
+            List<CourseType> childCourseType = courseTypeMapper.findCourseTypeByParentId(p.getId());
+            CourseTypeDTO courseTypeDTO = new CourseTypeDTO(p.getId(), p.getName(), childCourseType);
+            if(courseTypeDTO != null){
+                courseTypeDTOList.add(courseTypeDTO);
+            }
+        }
+        //2、获取课程
         List<CourseDTO> courseDTOList = null;
         List<Course> courseList = courseMapper.findCourseByIsFree(isFree);
         if(courseList != null){
             courseDTOList = mergeCourseDTOList(courseList);
         }
 
-        ListInfoDTO listInfoDTO = new ListInfoDTO(parentCourseTypeList,childCourseTypeList,courseDTOList);
+        ListInfoDTO listInfoDTO = new ListInfoDTO(courseTypeDTOList,courseDTOList);
         if(listInfoDTO == null){
             return new ServiceResult(false,"获取列表页数据失败");
         }
         return new ServiceResult(true,"获取列表页数据成功",listInfoDTO);
+    }
+
+    /**
+     * 获取课程
+     * @param pid    课程父类型 （方向）
+     * @param cid    课程子类型 （分类）
+     * @param rank   课程难度
+     * @param isFree 是否免费
+     */
+    @Override
+    public ServiceResult getCourseByPidAndCidAndRank(Integer pid, Integer cid, String rank, Integer isFree) {
+        List<Course> courseList = null;
+        if(pid == 0){
+            //1、方向：全部
+            if(cid == 0){
+                //1.1 分类：全部
+                courseList = courseMapper.findCourseByRankAndIsFree(rank, isFree);
+            }else{
+                //1.2 分类：具体
+                courseList = courseMapper.findCourseByCidAndRankAndIsFree(cid,rank,isFree);
+            }
+        }else{
+            //2、方向：具体
+            if(cid == 0){
+                //2.1 分类：全部
+                courseList = courseMapper.findCourseByPidAndRankAndIsFree(pid,rank,isFree);
+            }else{
+                //2.2 分类：具体
+                //判断 子类型所属的父类型是否跟pid相等
+                if(pid != ((courseTypeMapper.findCourseTypeById(cid)).getParentId())){
+                    return new ServiceResult(false,"非法操作");
+                }
+                courseList = courseMapper.findCourseByCidAndRankAndIsFree(cid,rank,isFree);
+            }
+        }
+        List<CourseDTO> courseDTOList = null;
+        if(courseList != null){
+            courseDTOList = mergeCourseDTOList(courseList);
+        }
+        if(courseDTOList == null){
+            return new ServiceResult(false,"点击获取课程失败");
+        }
+        return new ServiceResult(true,"点击获取课程成功",courseDTOList);
+    }
+
+    /**
+     * 获取子类型
+     *
+     * @param pid 课程父类型
+     * @return
+     */
+    @Override
+    public ServiceResult getChildType(Integer pid) {
+        List<CourseType> courseTypeList = null;
+        if(pid == 0){
+            //1、pid为0，获取全部子类型
+            courseTypeList = courseTypeMapper.findCourseTypeByParentIdNot(0);
+        }else{
+            //1、pid不为0，根据pid查子类型
+            courseTypeList = courseTypeMapper.findCourseTypeByParentId(pid);
+        }
+
+        if(courseTypeList == null){
+            return new ServiceResult(false,"获取课程类型失败");
+        }
+        return new ServiceResult(true,"获取课程类型成功",courseTypeList);
+    }
+
+    /**
+     * 获取父类型和子类型
+     *
+     * @param cid 课程子类型id
+     * @return
+     */
+    @Override
+    public ServiceResult getParentAndChildType(Integer cid) {
+        if(cid != 0){
+            //1、cid不为0，根据cid获取父类型和子类型
+            CourseType childType = courseTypeMapper.findCourseTypeById(cid);
+            CourseType parentType = courseTypeMapper.findCourseTypeById(childType.getParentId());
+            List<CourseType> childTypeList = courseTypeMapper.findCourseTypeByParentId(childType.getParentId());
+            CourseTypeDTO courseTypeList = new CourseTypeDTO(parentType.getId(), parentType.getName(), childTypeList);
+            if(childTypeList == null){
+                return new ServiceResult(false,"获取课程类型失败");
+            }
+            return new ServiceResult(true,"获取课程类型成功",courseTypeList);
+        }else{
+            return null;
+        }
     }
 
     /**

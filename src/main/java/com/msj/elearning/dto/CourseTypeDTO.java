@@ -10,6 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 public class CourseTypeDTO {
     private Integer id;
+    //父类型名
     private String name;
+    //子类型列表
     private List<CourseType> childCourseType;
 }
