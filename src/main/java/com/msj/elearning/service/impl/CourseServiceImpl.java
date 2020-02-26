@@ -1,5 +1,8 @@
 package com.msj.elearning.service.impl;
 
+import com.alibaba.druid.sql.PagerUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.msj.elearning.common.ServiceResult;
 import com.msj.elearning.dto.CourseDTO;
 import com.msj.elearning.dto.CourseTypeDTO;
@@ -10,6 +13,7 @@ import com.msj.elearning.mapper.CourseTypeMapper;
 import com.msj.elearning.pojo.Course;
 import com.msj.elearning.pojo.CourseType;
 import com.msj.elearning.service.CourseService;
+import com.msj.elearning.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,10 +56,9 @@ public class CourseServiceImpl implements CourseService {
      * @return
      */
     @Override
-    public ServiceResult getListInfo(Integer isFree) {
-
+    public ServiceResult getListInfo(Integer isFree,Integer currentPage,Integer pageSize) {
         //1、获取课程类型
-        ArrayList<CourseTypeDTO> courseTypeDTOList = new ArrayList<>();
+        List<CourseTypeDTO> courseTypeDTOList = new ArrayList<>();
         List<CourseType> parentCourseTypeList = courseTypeMapper.findCourseTypeByParentId(0);
         for (CourseType p : parentCourseTypeList) {
             List<CourseType> childCourseType = courseTypeMapper.findCourseTypeByParentId(p.getId());
@@ -64,14 +67,22 @@ public class CourseServiceImpl implements CourseService {
                 courseTypeDTOList.add(courseTypeDTO);
             }
         }
+
         //2、获取课程
-        List<CourseDTO> courseDTOList = null;
+        //2.1 开启分页，封装 courseList 到 PageInfo 中
+        PageHelper.startPage(currentPage,pageSize);
         List<Course> courseList = courseMapper.findCourseByIsFree(isFree);
+        PageInfo<Course> coursePageInfo = new PageInfo<>(courseList);
+        //2.2 将 PageInfo<Course> 转换为 PageInfo<CourseDTO>
+        PageInfo<CourseDTO> courseDTOPageInfo = PageUtils.PageInfo2PageInfoDTO(coursePageInfo);
+        // 2.3 将 PageInfo<CourseDTO> 放到 PageInfo<CourseDTO> 中
+        List<CourseDTO> courseDTOList = null;
         if(courseList != null){
             courseDTOList = mergeCourseDTOList(courseList);
         }
+        courseDTOPageInfo.setList(courseDTOList);
 
-        ListInfoDTO listInfoDTO = new ListInfoDTO(courseTypeDTOList,courseDTOList);
+        ListInfoDTO listInfoDTO = new ListInfoDTO(courseTypeDTOList,courseDTOPageInfo);
         if(listInfoDTO == null){
             return new ServiceResult(false,"获取列表页数据失败");
         }
@@ -86,10 +97,41 @@ public class CourseServiceImpl implements CourseService {
      * @param isFree 是否免费
      */
     @Override
-    public ServiceResult getCourseByPidAndCidAndRank(Integer pid, Integer cid, String rank, Integer isFree) {
+    public ServiceResult getCourseByPidAndCidAndRank(Integer pid, Integer cid, String rank, Integer isFree,
+                                                     Integer currentPage,Integer pageSize) {
+        //1、开启分页
+        PageHelper.startPage(currentPage,pageSize);
+        //2、获取课程
+        List<Course> courseList = getCourseList(pid,cid,rank,isFree);
+        //3、将 courseList 封装成 PageInfo 对象
+        PageInfo<Course> coursePageInfoList = new PageInfo<>(courseList);
+        //4、将 PageInfo<Course> 转化为 PageInfo<CourseDTO>
+        PageInfo<CourseDTO> courseDTOPageInfo = PageUtils.PageInfo2PageInfoDTO(coursePageInfoList);
+        //5、封装 List<CourseDTO>
+        List<CourseDTO> courseDTOList = null;
+        if(courseList != null){
+            courseDTOList = mergeCourseDTOList(courseList);
+        }
+        if(courseDTOList == null) {
+            return new ServiceResult(false, "点击获取课程失败");
+        }
+        //6、将 courseDTOList 放入 PageInfo<CourseDTO> 中
+        courseDTOPageInfo.setList(courseDTOList);
+        return new ServiceResult(true,"点击获取课程成功",courseDTOPageInfo);
+    }
+
+    /**
+     * 获取课程列表
+     * @param pid 父类型
+     * @param cid 子类型
+     * @param rank 难度
+     * @param isFree 是否免费
+     * @return
+     */
+    private List<Course> getCourseList(Integer pid, Integer cid, String rank, Integer isFree){
         List<Course> courseList = null;
         if(pid == 0){
-            //1、方向：全部
+            //1、 方向：全部
             if(cid == 0){
                 //1.1 分类：全部
                 courseList = courseMapper.findCourseByRankAndIsFree(rank, isFree);
@@ -106,21 +148,16 @@ public class CourseServiceImpl implements CourseService {
                 //2.2 分类：具体
                 //判断 子类型所属的父类型是否跟pid相等
                 if(pid != ((courseTypeMapper.findCourseTypeById(cid)).getParentId())){
-                    return new ServiceResult(false,"非法操作");
+                    return null;
                 }
                 courseList = courseMapper.findCourseByCidAndRankAndIsFree(cid,rank,isFree);
             }
         }
-        List<CourseDTO> courseDTOList = null;
-        if(courseList != null){
-            courseDTOList = mergeCourseDTOList(courseList);
+        if(courseList == null){
+            return null;
         }
-        if(courseDTOList == null){
-            return new ServiceResult(false,"点击获取课程失败");
-        }
-        return new ServiceResult(true,"点击获取课程成功",courseDTOList);
+        return courseList;
     }
-
     /**
      * 获取子类型
      *
@@ -145,26 +182,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 获取父类型和子类型
-     *
+     * 获取父类型和
      * @param cid 课程子类型id
      * @return
      */
     @Override
-    public ServiceResult getParentAndChildType(Integer cid) {
-        if(cid != 0){
-            //1、cid不为0，根据cid获取父类型和子类型
-            CourseType childType = courseTypeMapper.findCourseTypeById(cid);
-            CourseType parentType = courseTypeMapper.findCourseTypeById(childType.getParentId());
-            List<CourseType> childTypeList = courseTypeMapper.findCourseTypeByParentId(childType.getParentId());
-            CourseTypeDTO courseTypeList = new CourseTypeDTO(parentType.getId(), parentType.getName(), childTypeList);
-            if(childTypeList == null){
-                return new ServiceResult(false,"获取课程类型失败");
-            }
-            return new ServiceResult(true,"获取课程类型成功",courseTypeList);
-        }else{
-            return null;
+    public ServiceResult getParentType(Integer cid) {
+        //根据cid获取父类型
+        CourseType courseType = courseTypeMapper.findCourseTypeById(cid);
+        if(courseType == null){
+            return new ServiceResult(false,"获取课程类型失败");
         }
+        return new ServiceResult(true,"获取课程类型成功",courseType);
     }
 
     /**
@@ -228,6 +257,7 @@ public class CourseServiceImpl implements CourseService {
      * @return
      */
     private List<CourseDTO> mergeCourseDTOList(List<Course> courseList){
+
         List<CourseDTO> courseDTOList = new ArrayList<CourseDTO>();
         for (Course c : courseList) {
             CourseType courseType = courseTypeMapper.findCourseTypeById(c.getCtId());

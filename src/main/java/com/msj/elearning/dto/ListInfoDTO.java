@@ -1,5 +1,6 @@
 package com.msj.elearning.dto;
 
+import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ListInfoDTO {
     private List<CourseTypeDTO> courseTypeList;
-    private List<CourseDTO> courseList;
+    private PageInfo<CourseDTO> courseList;
 }

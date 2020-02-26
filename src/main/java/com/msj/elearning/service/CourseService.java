@@ -14,7 +14,7 @@ public interface CourseService {
      * @param isFree
      * @return
      */
-    ServiceResult getListInfo(Integer isFree);
+    ServiceResult getListInfo(Integer isFree,Integer currentPage,Integer pageSize);
 
     /**
      * 获取课程
@@ -23,7 +23,8 @@ public interface CourseService {
      * @param rank 课程难度
      * @param isFree 是否免费
      */
-    ServiceResult getCourseByPidAndCidAndRank(Integer pid,Integer cid,String rank,Integer isFree);
+    ServiceResult getCourseByPidAndCidAndRank(Integer pid,Integer cid,String rank,Integer isFree,
+                                              Integer currentPage,Integer pageSize);
 
 
     /**
@@ -34,9 +35,9 @@ public interface CourseService {
     ServiceResult getChildType(Integer pid);
 
     /**
-     * 获取父类型和子类型
+     * 获取父类型
      * @param cid 课程子类型id
      * @return
      */
-    ServiceResult getParentAndChildType(Integer cid);
+    ServiceResult getParentType(Integer cid);
 }

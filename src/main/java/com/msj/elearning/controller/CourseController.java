@@ -5,6 +5,7 @@ import com.msj.elearning.common.ServiceResult;
 import com.msj.elearning.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/course")
@@ -23,17 +24,19 @@ public class CourseController {
     }
 
     @RequestMapping("/getListInfo")
-    public ApiResponse getListInfo(Integer isFree){
-        ServiceResult result = courseService.getListInfo(isFree);
+    public ApiResponse getListInfo(Integer isFree, @RequestParam(defaultValue = "1") Integer currentPage, @RequestParam(defaultValue = "2") Integer pageSize){
+        ServiceResult result = courseService.getListInfo(isFree,currentPage,pageSize);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
         return new ApiResponse(0,result.getMessage());
     }
 
-    @RequestMapping("/getCourseByPidAndCidAndRank")
-    public ApiResponse getCourseByPidAndCidAndRank(Integer pid,Integer cid,String rank,Integer isFree){
-        ServiceResult result = courseService.getCourseByPidAndCidAndRank(pid,cid,rank,isFree);
+    @RequestMapping("/getCourse")
+    public ApiResponse getCourse(Integer pid,Integer cid,String rank,Integer isFree,
+                                                   @RequestParam(defaultValue = "1") Integer currentPage,
+                                                   @RequestParam(defaultValue = "2") Integer pageSize){
+        ServiceResult result = courseService.getCourseByPidAndCidAndRank(pid,cid,rank,isFree,currentPage,pageSize);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
@@ -49,9 +52,9 @@ public class CourseController {
         return new ApiResponse(0,result.getMessage());
     }
 
-    @RequestMapping("/getParentAndChildType")
-    public ApiResponse getParentAndChildType(Integer cid){
-        ServiceResult result = courseService.getParentAndChildType(cid);
+    @RequestMapping("/getParentType")
+    public ApiResponse getParentType(Integer cid){
+        ServiceResult result = courseService.getParentType(cid);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
