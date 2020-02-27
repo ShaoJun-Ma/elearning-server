@@ -5,4 +5,5 @@ import com.msj.elearning.pojo.User;
 
 public interface UserMapper extends CommonMapper<User> {
     User findUserByUsername(String username);
+    User findUserById(Integer id);
 }

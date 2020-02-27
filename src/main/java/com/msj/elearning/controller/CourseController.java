@@ -33,19 +33,10 @@ public class CourseController {
     }
 
     @RequestMapping("/getCourse")
-    public ApiResponse getCourse(Integer pid,Integer cid,String rank,Integer isFree,
+    public ApiResponse getCourse(Integer pId,Integer cId,String rank,Integer isFree,
                                                    @RequestParam(defaultValue = "1") Integer currentPage,
                                                    @RequestParam(defaultValue = "2") Integer pageSize){
-        ServiceResult result = courseService.getCourseByPidAndCidAndRank(pid,cid,rank,isFree,currentPage,pageSize);
-        if(result.isSuccess()){
-            return new ApiResponse(200,result.getMessage(),result.getResult());
-        }
-        return new ApiResponse(0,result.getMessage());
-    }
-
-    @RequestMapping("/getChildType")
-    public ApiResponse getChildType(Integer pid){
-        ServiceResult result = courseService.getChildType(pid);
+        ServiceResult result = courseService.getCourseByPidAndCidAndRank(pId,cId,rank,isFree,currentPage,pageSize);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
@@ -53,8 +44,17 @@ public class CourseController {
     }
 
     @RequestMapping("/getParentType")
-    public ApiResponse getParentType(Integer cid){
-        ServiceResult result = courseService.getParentType(cid);
+    public ApiResponse getParentType(Integer cId){
+        ServiceResult result = courseService.getParentType(cId);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
+    @RequestMapping("/getDetailInfo")
+    public ApiResponse getDetailInfo(Integer cId){
+        ServiceResult result = courseService.getDetailInfo(cId);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }

@@ -21,24 +21,28 @@
          </where>
     </select>
 
-    <select id="findCourseByCidAndRankAndIsFree"  resultType="com.msj.elearning.pojo.Course">
+    <select id="findCourseBycIdAndRankAndIsFree"  resultType="com.msj.elearning.pojo.Course">
         SELECT c.* FROM course c
         <where>
             <if test="rank != '全部'">
                 c.rank = #{rank} and
             </if>
-            c.ct_id = #{cid} and c.is_free = #{isFree}
+            c.ct_id = #{cId} and c.is_free = #{isFree}
         </where>
     </select>
 
-    <select id="findCourseByPidAndRankAndIsFree" resultType="com.msj.elearning.pojo.Course">
+    <select id="findCourseBypIdAndRankAndIsFree" resultType="com.msj.elearning.pojo.Course">
         SELECT c.* FROM course c LEFT JOIN course_type ct
         on c.ct_id = ct.id
         <where>
             <if test="rank != '全部'">
                 c.rank = #{rank} and
             </if>
-            ct.parent_id = #{pid} and c.is_free = #{isFree}
+            ct.parent_id = #{pId} and c.is_free = #{isFree}
         </where>
+    </select>
+
+    <select id="findCourseById" resultType="com.msj.elearning.pojo.Course">
+        SELECT * FROM course c WHERE c.id = #{id}
     </select>
 </mapper>
