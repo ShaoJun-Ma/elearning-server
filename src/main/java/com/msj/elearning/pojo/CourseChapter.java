@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseChapter {
-    private int id;
+    private Integer id;
     //父章节id
-    private int parentId;
+    private Integer parentId;
     //课程详情id
-    private int cdId;
+    private Integer cdId;
     //章节名
     private String title;
     //章节介绍

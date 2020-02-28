@@ -33,10 +33,10 @@ public class CourseController {
     }
 
     @RequestMapping("/getCourse")
-    public ApiResponse getCourse(Integer pId,Integer cId,String rank,Integer isFree,
+    public ApiResponse getCourse(Integer ptId,Integer ctId,String rank,Integer isFree,
                                                    @RequestParam(defaultValue = "1") Integer currentPage,
                                                    @RequestParam(defaultValue = "2") Integer pageSize){
-        ServiceResult result = courseService.getCourseByPidAndCidAndRank(pId,cId,rank,isFree,currentPage,pageSize);
+        ServiceResult result = courseService.getCourseByPtIdAndCtIdAndRank(ptId,ctId,rank,isFree,currentPage,pageSize);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
@@ -44,8 +44,8 @@ public class CourseController {
     }
 
     @RequestMapping("/getParentType")
-    public ApiResponse getParentType(Integer cId){
-        ServiceResult result = courseService.getParentType(cId);
+    public ApiResponse getParentType(Integer ctId){
+        ServiceResult result = courseService.getParentType(ctId);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }
@@ -55,6 +55,16 @@ public class CourseController {
     @RequestMapping("/getDetailInfo")
     public ApiResponse getDetailInfo(Integer cId){
         ServiceResult result = courseService.getDetailInfo(cId);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
+    @RequestMapping("/getEvaluation")
+    public ApiResponse getEvaluation(Integer cId,@RequestParam(defaultValue = "1") Integer currentPage,
+                                     @RequestParam(defaultValue = "2") Integer pageSize){
+        ServiceResult result = courseService.getEvaluation(cId,currentPage,pageSize);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }

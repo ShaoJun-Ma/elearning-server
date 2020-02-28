@@ -8,10 +8,12 @@ import com.msj.elearning.mapper.*;
 import com.msj.elearning.pojo.*;
 import com.msj.elearning.service.CourseService;
 import com.msj.elearning.utils.PageUtils;
+import com.msj.elearning.utils.TimeDiffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service("course")
@@ -27,6 +29,8 @@ public class CourseServiceImpl implements CourseService {
     private UserMapper userMapper;
     @Autowired
     private CourseChapterMapper courseChapterMapper;
+    @Autowired
+    private CourseEvaluationMapper courseEvaluationMapper;
 
     /**
      * 获取首页的数据
@@ -91,18 +95,18 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * 获取课程
-     * @param pId    课程父类型 （方向）
-     * @param cId    课程子类型 （分类）
+     * @param ptId    课程父类型 （方向）
+     * @param ctId    课程子类型 （分类）
      * @param rank   课程难度
      * @param isFree 是否免费
      */
     @Override
-    public ServiceResult getCourseByPidAndCidAndRank(Integer pId, Integer cId, String rank, Integer isFree,
+    public ServiceResult getCourseByPtIdAndCtIdAndRank(Integer ptId, Integer ctId, String rank, Integer isFree,
                                                      Integer currentPage,Integer pageSize) {
         //1、开启分页
         PageHelper.startPage(currentPage,pageSize);
         //2、获取课程
-        List<Course> courseList = getCourseList(pId,cId,rank,isFree);
+        List<Course> courseList = getCourseList(ptId,ctId,rank,isFree);
         //3、将 courseList 封装成 PageInfo 对象
         PageInfo<Course> coursePageInfoList = new PageInfo<>(courseList);
         //4、将 PageInfo<Course> 转化为 PageInfo<CourseDTO>
@@ -122,35 +126,35 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * 获取课程列表
-     * @param pId 父类型
-     * @param cId 子类型
+     * @param ptId 父类型
+     * @param ctId 子类型
      * @param rank 难度
      * @param isFree 是否免费
      * @return
      */
-    private List<Course> getCourseList(Integer pId, Integer cId, String rank, Integer isFree){
+    private List<Course> getCourseList(Integer ptId, Integer ctId, String rank, Integer isFree){
         List<Course> courseList = null;
-        if(pId == 0){
+        if(ptId == 0){
             //1、 方向：全部
-            if(cId == 0){
+            if(ctId == 0){
                 //1.1 分类：全部
                 courseList = courseMapper.findCourseByRankAndIsFree(rank, isFree);
             }else{
                 //1.2 分类：具体
-                courseList = courseMapper.findCourseBycIdAndRankAndIsFree(cId,rank,isFree);
+                courseList = courseMapper.findCourseByCtIdAndRankAndIsFree(ctId,rank,isFree);
             }
         }else{
             //2、方向：具体
-            if(cId == 0){
+            if(ctId == 0){
                 //2.1 分类：全部
-                courseList = courseMapper.findCourseBypIdAndRankAndIsFree(pId,rank,isFree);
+                courseList = courseMapper.findCourseByPtIdAndRankAndIsFree(ptId,rank,isFree);
             }else{
                 //2.2 分类：具体
                 //判断 子类型所属的父类型是否跟pId相等
-                if(pId != ((courseTypeMapper.findCourseTypeById(cId)).getParentId())){
+                if(ptId != ((courseTypeMapper.findCourseTypeById(ctId)).getParentId())){
                     return null;
                 }
-                courseList = courseMapper.findCourseBycIdAndRankAndIsFree(cId,rank,isFree);
+                courseList = courseMapper.findCourseByCtIdAndRankAndIsFree(ctId,rank,isFree);
             }
         }
         if(courseList == null){
@@ -161,13 +165,12 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * 获取父类型
-     * @param cId 课程子类型id
+     * @param ctId 课程子类型id
      * @return
      */
     @Override
-    public ServiceResult getParentType(Integer cId) {
-        //根据cId获取父类型
-        CourseType courseType = courseTypeMapper.findCourseTypeById(cId);
+    public ServiceResult getParentType(Integer ctId) {
+        CourseType courseType = courseTypeMapper.findCourseTypeById(ctId);
         if(courseType == null){
             return new ServiceResult(false,"获取课程类型失败");
         }
@@ -198,6 +201,40 @@ public class CourseServiceImpl implements CourseService {
             return new ServiceResult(false,"获取课程详情失败");
         }
         return new ServiceResult(true,"获取课程详情成功",detailInfoDTO);
+    }
+
+    /**
+     * 获取课程评价
+     * @param cId 课程id
+     * @param currentPage 当前页码
+     * @param pageSize 一页多少条
+     * @return
+     */
+    @Override
+    public ServiceResult getEvaluation(Integer cId,Integer currentPage,Integer pageSize) {
+        //1、开启分页
+        PageHelper.startPage(currentPage,pageSize);
+        //2、获取评论
+        List<CourseEvaluation> evaluationList = courseEvaluationMapper.findEvaluationByCId(cId);
+        //3、将list封装为 PageInfo<CourseEvaluation>
+        PageInfo<CourseEvaluation> evaluationPageInfo = new PageInfo<>(evaluationList);
+        //4、PageInfo<CourseEvaluation> 类型 转 PageInfo<CourseEvaluationDTO>
+        PageInfo<CourseEvaluationDTO> evaluationDTOPageInfo = PageUtils.PageInfo2PageInfoDTO(evaluationPageInfo);
+
+        List<CourseEvaluationDTO> courseEvaluationDTOList = new ArrayList<>();
+        for (CourseEvaluation e : evaluationList) {
+            //5、获取评论者
+            User user = userMapper.findUserById(e.getUId());
+            String timeDiff = TimeDiffUtil.timeDiff(new Date(), e.getCreateTime());
+            CourseEvaluationDTO courseEvaluationDTO = new CourseEvaluationDTO(e.getId(),user.getUsername(),user.getFaceImg(),e.getEvaluation(),timeDiff);
+            courseEvaluationDTOList.add(courseEvaluationDTO);
+        }
+        //6、PageInfo<CourseEvaluationDTO> 添加list
+        evaluationDTOPageInfo.setList(courseEvaluationDTOList);
+        if(evaluationDTOPageInfo == null){
+            return new ServiceResult(false,"获取用户评论失败");
+        }
+        return new ServiceResult(true,"获取用户评论成功",evaluationDTOPageInfo);
     }
 
     /**
