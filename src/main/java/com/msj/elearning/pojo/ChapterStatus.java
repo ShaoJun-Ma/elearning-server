@@ -4,19 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 章节状态实体类
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseChapter {
+public class ChapterStatus {
     private Integer id;
-    //父章节id
-    private Integer parentId;
+    //是否完成
+    private Integer isFinished;
+    //用户id
+    private Integer uId;
+    //章节id
+    private Integer ccId;
     //课程详情id
     private Integer cdId;
-    //章节名
-    private String title;
-    //章节介绍
-    private String introduction;
-    //章节状态
-    private Integer is_finished;
 }

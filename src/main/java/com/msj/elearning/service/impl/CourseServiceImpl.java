@@ -31,6 +31,8 @@ public class CourseServiceImpl implements CourseService {
     private CourseChapterMapper courseChapterMapper;
     @Autowired
     private CourseEvaluationMapper courseEvaluationMapper;
+    @Autowired
+    private ChapterStatusMapper chapterStatusMapper;
 
     /**
      * 获取首页的数据
@@ -179,12 +181,12 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * 获取课程详情
-     *
-     * @param cId
+     * @param cId 课程id
+     * @param uId 用户id
      * @return
      */
     @Override
-    public ServiceResult getDetailInfo(Integer cId) {
+    public ServiceResult getDetailInfo(Integer cId,Integer uId) {
         //1、获取详情信息
         CourseDetail courseDetail = courseDetailMapper.findCourseDetailByCid(cId);
         //2、获取课程信息
@@ -195,7 +197,7 @@ public class CourseServiceImpl implements CourseService {
         User author = userMapper.findUserById(courseDetail.getUId());
         author.setPassword(null);
         //5、整合课程章节
-        List<CourseChapterDTO> courseChapterList = mergeCourseChapterDTOList(courseDetail.getId());
+        List<CourseChapterDTO> courseChapterList = mergeCourseChapterDTOList(courseDetail.getId(),uId);
         DetailInfoDTO detailInfoDTO = new DetailInfoDTO(courseType, author, course, courseDetail, courseChapterList);
         if(detailInfoDTO == null){
             return new ServiceResult(false,"获取课程详情失败");
@@ -239,16 +241,27 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * 整合章节
-     * @param cdId
+     * @param cdId 课程详情id
+     * @param uId 用户id
      * @return
      */
-    private List<CourseChapterDTO> mergeCourseChapterDTOList(Integer cdId){
+    private List<CourseChapterDTO> mergeCourseChapterDTOList(Integer cdId,Integer uId){
         List<CourseChapterDTO> courseChapterDTOList = new ArrayList<>();
         //1、获取父章节
         List<CourseChapter> parentChapterList = courseChapterMapper.findChapterByCdIdAndParentId(cdId, 0);
         //2、根据父章节获取子章节
         for (CourseChapter p : parentChapterList) {
             List<CourseChapter> childChapterList = courseChapterMapper.findChapterByCdIdAndParentId(cdId, p.getId());
+            if(uId != 0){
+                for (CourseChapter c : childChapterList) {
+                    ChapterStatus chapterStatus = chapterStatusMapper.findChapterStatus(uId, cdId, c.getId());
+                    if(chapterStatus == null){
+                        c.setIs_finished(0);
+                    }else{
+                        c.setIs_finished(chapterStatus.getIsFinished());
+                    }
+                }
+            }
             CourseChapterDTO courseChapterDTO = new CourseChapterDTO(p.getId(),p.getTitle(),p.getIntroduction(),childChapterList);
             courseChapterDTOList.add(courseChapterDTO);
         }

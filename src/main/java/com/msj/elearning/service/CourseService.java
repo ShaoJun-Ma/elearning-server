@@ -38,15 +38,16 @@ public interface CourseService {
     /**
      * 获取课程详情
      * @param cId 课程id
+     * @param uId 用户id
      * @return
      */
-    ServiceResult getDetailInfo(Integer cId);
+    ServiceResult getDetailInfo(Integer cId,Integer uId);
 
     /**
      * 获取课程评价
      * @param cId 课程id
      * @param currentPage 当前页码
-     * @param pageSize 一页多少条
+     * @param pageSize 每页的条数
      * @return
      */
     ServiceResult getEvaluation(Integer cId,Integer currentPage,Integer pageSize);

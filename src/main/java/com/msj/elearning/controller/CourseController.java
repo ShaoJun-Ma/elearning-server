@@ -53,8 +53,9 @@ public class CourseController {
     }
 
     @RequestMapping("/getDetailInfo")
-    public ApiResponse getDetailInfo(Integer cId){
-        ServiceResult result = courseService.getDetailInfo(cId);
+    public ApiResponse getDetailInfo(Integer cId,
+                                     @RequestParam(required = false,defaultValue = "0")Integer uId){
+        ServiceResult result = courseService.getDetailInfo(cId,uId);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }

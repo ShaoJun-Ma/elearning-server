@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.msj.elearning.mapper.ChapterStatusMapper">
+   <select id="findChapterStatus" resultType="com.msj.elearning.pojo.ChapterStatus">
+       SELECT * FROM chapter_status
+       WHERE u_id = #{uId} and cd_id = #{cdId} and cc_id = #{ccId}
+   </select>
+</mapper>
