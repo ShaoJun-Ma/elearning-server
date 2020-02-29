@@ -240,6 +240,21 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
+     * 获取章节
+     *
+     * @param cdId 课程详情id
+     * @return
+     */
+    @Override
+    public ServiceResult getChapter(Integer cdId) {
+        List<CourseChapterDTO> courseChapterDTOList = mergeCourseChapterDTOList(cdId, 0);
+        if(courseChapterDTOList == null){
+            return new ServiceResult(false,"获取课程章节失败");
+        }
+        return new ServiceResult(true,"获取课程章节成功",courseChapterDTOList);
+    }
+
+    /**
      * 整合章节
      * @param cdId 课程详情id
      * @param uId 用户id

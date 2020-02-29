@@ -52,4 +52,11 @@ public interface CourseService {
      */
     ServiceResult getEvaluation(Integer cId,Integer currentPage,Integer pageSize);
 
+    /**
+     * 获取章节
+     * @param cdId 课程详情id
+     * @return
+     */
+    ServiceResult getChapter(Integer cdId);
+
 }

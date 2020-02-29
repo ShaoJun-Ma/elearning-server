@@ -72,4 +72,13 @@ public class CourseController {
         return new ApiResponse(0,result.getMessage());
     }
 
+    @RequestMapping("/getChapter")
+    public ApiResponse getChapter(Integer cdId){
+        ServiceResult result = courseService.getChapter(cdId);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
 }
