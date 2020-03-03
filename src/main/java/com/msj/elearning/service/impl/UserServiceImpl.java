@@ -7,6 +7,7 @@ import com.msj.elearning.service.UserService;
 import com.msj.elearning.utils.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
@@ -69,5 +70,22 @@ public class UserServiceImpl implements UserService {
             return new ServiceResult(true,"退出成功");
         }
         return new ServiceResult(false,"退出失败");
+    }
+
+    @Override
+    public ServiceResult changeUserInfo(User user, HttpSession session) {
+        //1、根据id查user
+        User userInfo = userMapper.findUserById(user.getId());
+        //2、更新数据
+        int result = userMapper.updateByPrimaryKeySelective(user);
+        if(result <= 0){
+            return new ServiceResult(false,"修改个人信息失败");
+        }
+        //3、修改缓存信息
+        user.setUpdateTime(new Date());
+        user.setFaceImg(userInfo.getFaceImg());
+        session.setAttribute("currentUser",user);
+
+        return new ServiceResult(true,"修改个人信息成功",user);
     }
 }

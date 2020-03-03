@@ -2,9 +2,12 @@ package com.msj.elearning.controller;
 
 import com.msj.elearning.common.ApiResponse;
 import com.msj.elearning.common.ServiceResult;
+import com.msj.elearning.pojo.User;
 import com.msj.elearning.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -39,6 +42,15 @@ public class UserController {
         ServiceResult result = userService.logout(uId,session);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
+    @RequestMapping("/changeUserInfo")
+    public ApiResponse changeUserInfo(User user, HttpSession session){
+        ServiceResult result = userService.changeUserInfo(user,session);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
         }
         return new ApiResponse(0,result.getMessage());
     }
