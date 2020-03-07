@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 
@@ -49,6 +50,15 @@ public class UserController {
     @RequestMapping("/changeUserInfo")
     public ApiResponse changeUserInfo(User user, HttpSession session){
         ServiceResult result = userService.changeUserInfo(user,session);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
+    @RequestMapping("/uploadAvatar")
+    public ApiResponse uploadAvatar(@RequestParam("picFile") MultipartFile picFile,HttpSession session){
+        ServiceResult result = userService.uploadAvatar(picFile,session);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
         }

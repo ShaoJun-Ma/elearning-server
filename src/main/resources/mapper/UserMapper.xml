@@ -10,4 +10,8 @@
     <select id="findUserById" resultType="com.msj.elearning.pojo.User">
          SELECT * FROM user u WHERE u.id = #{id}
     </select>
+
+    <update id="updateFaceImgById">
+        UPDATE user u set u.face_img = #{faceImg} WHERE u.id = #{id}
+    </update>
 </mapper>
