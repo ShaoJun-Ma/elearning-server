@@ -10,6 +10,7 @@ import com.msj.elearning.service.CourseService;
 import com.msj.elearning.utils.PageUtils;
 import com.msj.elearning.utils.TimeDiffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class CourseServiceImpl implements CourseService {
     private CourseEvaluationMapper courseEvaluationMapper;
     @Autowired
     private ChapterStatusMapper chapterStatusMapper;
+    @Value("${faceImgUrl}")
+    private String faceImgUrl;
 
     /**
      * 获取首页的数据
@@ -195,6 +198,7 @@ public class CourseServiceImpl implements CourseService {
         CourseTypeOne2OneDTO courseType = mergeCourseType(course);
         //4、获取作者信息
         User author = userMapper.findUserById(courseDetail.getUId());
+        author.setFaceImg(faceImgUrl+author.getFaceImg());
         author.setPassword(null);
         //5、整合课程章节
         List<CourseChapterDTO> courseChapterList = mergeCourseChapterDTOList(courseDetail.getId(),uId);
@@ -227,6 +231,7 @@ public class CourseServiceImpl implements CourseService {
         for (CourseEvaluation e : evaluationList) {
             //5、获取评论者
             User user = userMapper.findUserById(e.getUId());
+            user.setFaceImg(faceImgUrl+user.getFaceImg());
             String timeDiff = TimeDiffUtil.timeDiff(new Date(), e.getCreateTime());
             CourseEvaluationDTO courseEvaluationDTO = new CourseEvaluationDTO(e.getId(),user.getUsername(),user.getFaceImg(),e.getEvaluation(),timeDiff);
             courseEvaluationDTOList.add(courseEvaluationDTO);
