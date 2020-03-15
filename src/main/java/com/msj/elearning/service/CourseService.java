@@ -59,4 +59,9 @@ public interface CourseService {
      */
     ServiceResult getChapter(Integer cdId);
 
+    /**
+     * 获取课程类型
+     * @return
+     */
+    ServiceResult getCourseTypeOptions();
 }

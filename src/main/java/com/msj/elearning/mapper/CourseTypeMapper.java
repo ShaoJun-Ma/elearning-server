@@ -9,4 +9,5 @@ public interface CourseTypeMapper extends CommonMapper<CourseType> {
     List<CourseType> findCourseTypeByParentId(Integer parentId);
     CourseType findCourseTypeById(Integer id);
     List<CourseType> findCourseTypeByParentIdNot(Integer parentId);
+
 }

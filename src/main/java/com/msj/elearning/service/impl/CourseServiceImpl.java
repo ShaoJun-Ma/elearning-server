@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service("course")
-public class CourseServiceImpl implements CourseService {
+public class CourseServiceImpl implements CourseService{
 
     @Autowired
     private CourseTypeMapper courseTypeMapper;
@@ -257,6 +257,34 @@ public class CourseServiceImpl implements CourseService {
             return new ServiceResult(false,"获取课程章节失败");
         }
         return new ServiceResult(true,"获取课程章节成功",courseChapterDTOList);
+    }
+
+    /**
+     * 获取课程类型
+     * @return
+     */
+    @Override
+    public ServiceResult getCourseTypeOptions() {
+        ArrayList<TypeOptionsDTO> typeOptionsDTOList = new ArrayList<>();
+        //1、获取父级课程类型
+        List<CourseType> parentCourseTypeList = courseTypeMapper.findCourseTypeByParentId(0);
+        for (CourseType p : parentCourseTypeList) {
+            //2、获取子级课程类型
+            List<CourseType> childCourseTypeList = courseTypeMapper.findCourseTypeByParentId(p.getId());
+            List<TypeOptionDTO> children = new ArrayList<>();
+            //3、将 List<CourseType> 转换为 List<TypeOptionDTO>
+            for (CourseType c : childCourseTypeList) {
+                TypeOptionDTO typeOptionDTO = new TypeOptionDTO(c.getId(), c.getName());
+                children.add(typeOptionDTO);
+            }
+
+            TypeOptionsDTO typeOptionsDTO = new TypeOptionsDTO(p.getId(), p.getName(), children);
+            typeOptionsDTOList.add(typeOptionsDTO);
+        }
+        if(typeOptionsDTOList == null){
+            new ServiceResult(false,"获取课程类型失败");
+        }
+        return new ServiceResult(true,"获取课程类型成功",typeOptionsDTOList);
     }
 
     /**
