@@ -47,6 +47,12 @@ public class UserController {
         return new ApiResponse(0,result.getMessage());
     }
 
+    /**
+     * 修改用户信息
+     * @param user 用户信息
+     * @param session
+     * @return
+     */
     @RequestMapping("/changeUserInfo")
     public ApiResponse changeUserInfo(User user, HttpSession session){
         ServiceResult result = userService.changeUserInfo(user,session);
@@ -56,11 +62,26 @@ public class UserController {
         return new ApiResponse(0,result.getMessage());
     }
 
+    /**
+     * 上传头像
+     * @param picFile 图片文件
+     * @param session
+     * @return
+     */
     @RequestMapping("/uploadAvatar")
     public ApiResponse uploadAvatar(@RequestParam("picFile") MultipartFile picFile,HttpSession session){
         ServiceResult result = userService.uploadAvatar(picFile,session);
         if(result.isSuccess()){
             return new ApiResponse(200,result.getMessage(),result.getResult());
+        }
+        return new ApiResponse(0,result.getMessage());
+    }
+
+    @RequestMapping("/changePassword")
+    public ApiResponse changePassword(Integer id,String oldPass,String newPass,HttpSession session){
+        ServiceResult result = userService.changePassword(id,oldPass,newPass,session);
+        if(result.isSuccess()){
+            return new ApiResponse(200,result.getMessage());
         }
         return new ApiResponse(0,result.getMessage());
     }

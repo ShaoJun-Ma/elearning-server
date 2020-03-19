@@ -8,4 +8,5 @@ public interface UserMapper extends CommonMapper<User> {
     User findUserByUsername(String username);
     User findUserById(Integer id);
     Integer updateFaceImgById(@Param("faceImg")String faceImg,@Param("id")Integer id);
+    Integer updatePasswordById(@Param("id")Integer id,@Param("newPass")String newPass);
 }

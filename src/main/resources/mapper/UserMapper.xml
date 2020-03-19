@@ -14,4 +14,8 @@
     <update id="updateFaceImgById">
         UPDATE user u set u.face_img = #{faceImg} WHERE u.id = #{id}
     </update>
+
+    <update id="updatePasswordById">
+        UPDATE user u set u.password = #{newPass} WHERE u.id = #{id}
+    </update>
 </mapper>

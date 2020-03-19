@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Date;
 
 @Service("user")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService{
     @Autowired
     private UserMapper userMapper;
     @Value("${faceImgLocation}")
@@ -81,6 +81,12 @@ public class UserServiceImpl implements UserService {
         return new ServiceResult(false,"退出失败");
     }
 
+    /**
+     * 修改用户信息
+     * @param user 用户信息
+     * @param session
+     * @return
+     */
     @Override
     public ServiceResult changeUserInfo(User user, HttpSession session) {
         //1、根据id查user
@@ -98,6 +104,12 @@ public class UserServiceImpl implements UserService {
         return new ServiceResult(true,"修改个人信息成功",user);
     }
 
+    /**
+     * 上传头像
+     * @param picFile 图片文件
+     * @param session
+     * @return
+     */
     @Override
     public ServiceResult uploadAvatar(MultipartFile picFile, HttpSession session) {
         //1、删除旧头像
@@ -134,5 +146,30 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         return new ServiceResult(true,"上传头像成功",user);
+    }
+
+    @Override
+    public ServiceResult changePassword(Integer id, String oldPass, String newPass, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        //1、判断是否本人
+        if(id.equals(currentUser.getId())){
+            User user = userMapper.findUserById(id);
+            oldPass = MD5Util.getMD5(oldPass);
+            //2、判断旧密码是否正确
+            if(oldPass.equals(user.getPassword())){
+                //3、修改密码
+                Integer result = userMapper.updatePasswordById(id, MD5Util.getMD5(newPass));
+                if(result <= 0){
+                    return new ServiceResult(false,"修改密码失败");
+                }
+                //4、修改密码成功，重新登录
+                session.removeAttribute("currentUser");
+                return new ServiceResult(true,"修改密码成功，请重新登录");
+            }else{
+                return new ServiceResult(false,"旧密码出错，请重新输入");
+            }
+        }
+        return new ServiceResult(false,"非法操作");
+
     }
 }
